@@ -16,6 +16,7 @@ const SPRITES = PAGESIZE*7;
 const UI = PAGESIZE*8;
 
 
+
 S=Math.sin;
 
 C=Math.cos;
@@ -185,16 +186,16 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
   function clear(color = 0, page=renderTarget){
     ram.fill(color, page, page + PAGESIZE);
   }
-  function setColors(o){
-    cursorColor = o[0];
-    cursorColor2 = o[1];
+  function setColors(color1 = cursorColor1, color2 = cursorColor2){
+    cursorColor = color1;
+    cursorColor2 = color2;
   }
 
-  function pset(o) { //an index from colors[], 0-63
+  function pset(x,y) { //an index from colors[], 0-63
     //o[0] x
     //o[1] y
-    x = o[0]|0;
-    y = o[1]|0;
+    x = x|0;
+    y = y|0;
     let px = (y % 4) * 4 + (x% 4);
     let mask = pat & Math.pow(2, px);
     pcolor = mask ? cursorColor : cursorColor2;
@@ -269,7 +270,7 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
     dy <<= 1;        // dy is now 2*dy
     dx <<= 1;        // dx is now 2*dx
 
-    pset([x1, y1]);
+    pset(x1, y1);
     if (dx > dy) {
       var fraction = dy - (dx >> 1);  // same as 2*dy - dx
       while (x1 != x2) {
@@ -279,7 +280,7 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
         }
         x1 += stepx;
         fraction += dy;              // same as fraction -= 2*dy
-        pset([x1, y1]);
+        pset(x1, y1);
       }
       ;
     } else {
@@ -291,7 +292,7 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
         }
         y1 += stepy;
         fraction += dx;
-        pset([x1, y1]);
+        pset(x1, y1);
       }
     }
 
@@ -307,13 +308,13 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
     var x = -r, y = 0, err = 2 - 2 * r;
     /* II. Quadrant */
     do {
-      pset([xm - x, ym + y]);
+      pset(xm - x, ym + y);
       /*   I. Quadrant */
-      pset([xm - y, ym - x]);
+      pset(xm - y, ym - x);
       /*  II. Quadrant */
-      pset([xm + x, ym - y]);
+      pset(xm + x, ym - y);
       /* III. Quadrant */
-      pset([xm + y, ym + x]);
+      pset(xm + y, ym + x);
       /*  IV. Quadrant */
       r = err;
       if (r <= y) err += ++y * 2 + 1;
@@ -362,20 +363,20 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
      a *= 8*a; b1 = 8*b*b;
 
      do {
-         pset([x1, y0]); /*   I. Quadrant */
-         pset([x0, y0]); /*  II. Quadrant */
-         pset([x0, y1]); /* III. Quadrant */
-         pset([x1, y1]); /*  IV. Quadrant */
+         pset(x1, y0); /*   I. Quadrant */
+         pset(x0, y0); /*  II. Quadrant */
+         pset(x0, y1); /* III. Quadrant */
+         pset(x1, y1); /*  IV. Quadrant */
          e2 = 2*err;
          if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */
          if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; } /* x step */
      } while (x0 <= x1);
 
      while (y0-y1 < b) {  /* too early stop of flat ellipses a=1 */
-         pset([x0-1, y0]); /* -> finish tip of ellipse */
-         pset([x1+1, y0++]);
-         pset([x0-1, y1]);
-         pset([x1+1, y1--]);
+         pset(x0-1, y0); /* -> finish tip of ellipse */
+         pset(x1+1, y0++);
+         pset(x0-1, y1);
+         pset(x1+1, y1--);
      }
   }
 
@@ -803,10 +804,10 @@ function textLine(o) {
 					if(o[4] == 1){
             let cx = 0;
             let cy = 0;
-						pset([
+						pset(
 							o[1] + ( x * o[4] ) + ( ( size * o[4] ) + o[3] ) * i,
               ( o[2] + ( o[6] ? Math.sin((t+i*o[8])*1/o[7])*o[6] : 0 ) + (y * o[4]) )|0
-              ]);
+              );
 					}
 
 					else {
