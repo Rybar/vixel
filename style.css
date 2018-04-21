@@ -6,8 +6,8 @@ body {
     "header header header"
     "nav section aside"
     "footer footer footer";
-	grid-template-rows: 80px 1fr 50px;
-	grid-template-columns: 15% 1fr;
+	grid-template-rows: 120px 1fr 50px;
+	grid-template-columns: 20% 1fr;
 	grid-gap: 5px;
   height: 100vh;
   margin: 10px;  
@@ -24,6 +24,8 @@ nav {
 }
 
 section {
+  align-self: center;
+  justify-self: center;
 	background: #ABABAB;
 	grid-area: section;    
 }
@@ -38,9 +40,15 @@ footer {
 	grid-area: footer;
 }
 
-.canvas {
+canvas {
   width: 960px;
   height: 540px;
+  image-rendering: optimizeSpeed;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: -o-crisp-edges;
+  image-rendering: pixelated;
+  -ms-interpolation-mode: nearest-neighbor;
 }
 
 header, nav, section, aside, footer {
