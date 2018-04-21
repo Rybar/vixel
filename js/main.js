@@ -8,7 +8,7 @@ init = () => {
     CIRCLE = 6;
     FCIRCLE = 7;
     FLOOD = 8;
-
+    SETCOLORS = 9;
     ui = {
         color1: 22,
         color2: 0
@@ -71,6 +71,11 @@ drawBatch = (o) => {
         
         case FLOOD:
             floodFill(...batch.splice(0,2));
+            break;
+        
+        case SETCOLORS:
+            setColors(...batch.splice(0,2));
+            break;
         default:
         setColors(4); 
         fillRect(0,0,320,180);
@@ -95,19 +100,29 @@ loop = () =>{
         fillRect(x*rspace,0,x*rspace+4,4,i,0);
     }
     setColors(22,22);
+
+    /*PSET = 1;
+    LINE = 2;
+    LINETO = 3;
+    RECT = 4;
+    FRECT = 5;
+    CIRCLE = 6;
+    FCIRCLE = 7;
+    FLOOD = 8;
+    SETCOLORS = 9;*/
+
     drawBatch([
-        1,19,4,
-        1,8,8,
-        1,16,16,
-        1,32,32,
-        1,64,64,
+        1,19,4, 1,8,8, 1,16,16, 1,32,32, 1,64,64,
+        9, 4, 1,
         2,128,64,320,180,
-        3,WIDTH/2, HEIGHT/2,
-        3,310,10,
+        9,17,0,
+        3,WIDTH/2, HEIGHT/2, 3,310,10, 3,53,53,
+        9,42,0,
         RECT, 4, 4, 90,90,
         FRECT,90,90,140,140,
         CIRCLE, 300,140,9,
         FCIRCLE,WIDTH/2,HEIGHT,10
+
     ])
 
     render()
