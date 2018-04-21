@@ -186,7 +186,7 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
   function clear(color = 0, page=renderTarget){
     ram.fill(color, page, page + PAGESIZE);
   }
-  function setColors(color1 = cursorColor1, color2 = cursorColor2){
+  function setColors(color1 = cursorColor, color2 = cursorColor2){
     cursorColor = color1;
     cursorColor2 = color2;
   }

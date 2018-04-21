@@ -1,6 +1,7 @@
 init = () => {
 
     mouseCursor = {x:0, y:0};
+    mouseDown = false;
     currentTool = 2;
     startX = 0;
     startY = 0;
@@ -36,7 +37,7 @@ init = () => {
 
     ];
 
-    setColors(ui.color1, ui.color2);
+    //setColors(ui.color1, ui.color2);
     makeUI();
     loop();
 }
@@ -77,6 +78,22 @@ setCursor = e => {
 drawStart = e => {
     startX = mouseCursor.x;
     startY = mouseCursor.y;
+}
+
+drawEnd = e => {
+    endX = mouseCursor.x;
+    endY = mouseCursor.y;
+    activeBatch.push(SETCOLORS, ui.color1, ui.color2);
+
+    switch(currentTool){
+        case PSET:
+            activeBatch.push(currentTool, endX, endY);
+            break;
+        case LINE:
+            activeBatch.push(currentTool, startX, startY, endX, endY);
+            break;
+    }
+    
 }
 
 drawActive = e => {
@@ -208,6 +225,7 @@ loop = () =>{
     
 }
 
-document.addEventListener("mousemove", setCursor);
-document.addEventListener("mousedown", drawStart);
+canvas.addEventListener("mousemove", setCursor);
+canvas.addEventListener("mousedown", drawStart);
+canvas.addEventListener("mouseup", drawEnd);
 init();
