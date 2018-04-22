@@ -72,6 +72,13 @@ makeUI = () => {
     });
 
     button = document.createElement("button");
+    button.innerHTML = 'lineTo';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = LINETO;
+    });
+
+    button = document.createElement("button");
     button.innerHTML = 'rect';
     uisection.appendChild(button);
     button.addEventListener ("click", function() {
@@ -172,7 +179,7 @@ drawEnd = e => {
             break;
         default: break;
     }
-    
+    document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
 }
 
 drawActive = e => {
@@ -187,26 +194,18 @@ drawActive = e => {
             case LINE:
                 line(startX, startY, endX, endY);
                 break;
-
-            case LINETO:
-                lineTo(endX, endY); 
-                break;
-
             case RECT:
                 rect(startX, startY, endX, endY);
-                break;
-                
+                break;     
             case FRECT:
                 fillRect(startX, startY, endX, endY);
-                break;
-            
+                break;     
             case CIRCLE:
                 let leg1 = Math.abs(startX - endX),
                     leg2 = Math.abs(startY - endY),
                     r = Math.hypot(leg1, leg2)|0;
                 circle(startX, startY, r);
-                break;
-            
+                break; 
             case FCIRCLE:
                 let fleg1 = Math.abs(startX - endX),
                     fleg2 = Math.abs(startY - endY),
@@ -223,7 +222,9 @@ drawActive = e => {
             fillRect(0,0,320,180);
             batch = []; //to prevent infinite loop and bail if malformed
         }
-}
+    } else if(currentTool == LINETO){
+        lineTo(endX, endY);
+    }
 }
 processBatch = (o) => {
     let batch = [...o];
@@ -284,26 +285,16 @@ loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    
-    for(var i = 0; i < 64; i++){
-        let x = i%64,
-            y = i%64,
-            rspace = 5,
-            cspace = 3;
-        pat = dither[0];
-        fillRect(x*rspace,0,x*rspace+4,4,i,0);
-    }
-    /*PSET = 1;
-    LINE = 2;
-    LINETO = 3;
-    RECT = 4;
-    FRECT = 5;
-    CIRCLE = 6;
-    FCIRCLE = 7;
-    FLOOD = 8;
-    SETCOLORS = 9;*/
-    
-    
+    //color bar
+    // for(var i = 0; i < 64; i++){
+    //     let x = i%64,
+    //         y = i%64,
+    //         rspace = 5,
+    //         cspace = 3;
+    //     pat = dither[0];
+    //     fillRect(x*rspace,0,x*rspace+4,4,i,0);
+    // }
+
     processBatch(activeBatch)
     drawActive();
     //document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
@@ -317,4 +308,7 @@ loop = () =>{
 canvas.addEventListener("mousemove", setCursor);
 canvas.addEventListener("mousedown", drawStart);
 canvas.addEventListener("mouseup", drawEnd);
+document.addEventListener('DOMContentLoaded',function() {
+    document.querySelector('select[name="color1"]').onchange=changeEventHandler;
+},false);
 init();
