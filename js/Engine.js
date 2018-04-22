@@ -243,6 +243,8 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
 }
 
   function line(x1, y1, x2, y2, color=cursorColor, color2 = cursorColor2) {
+    cursorX = x2;
+    cursorY = y2;
     cursorColor2 = color2;
     cursorColor = color;
 

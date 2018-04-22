@@ -148,8 +148,8 @@ drawEnd = e => {
         case LINE:
             activeBatch.push(currentTool, startX, startY, endX, endY);
             break;
-            case LINETO:
-            lineTo(endX, endY); 
+        case LINETO:
+            activeBatch.push(currentTool, endX, endY);
             break;
 
         case RECT:
@@ -194,6 +194,9 @@ drawActive = e => {
             case LINE:
                 line(startX, startY, endX, endY);
                 break;
+            case LINETO:
+                line(cursorX, cursorY, endX, endY);
+                break;
             case RECT:
                 rect(startX, startY, endX, endY);
                 break;     
@@ -222,9 +225,7 @@ drawActive = e => {
             fillRect(0,0,320,180);
             batch = []; //to prevent infinite loop and bail if malformed
         }
-    } else if(currentTool == LINETO){
-        lineTo(endX, endY);
-    }
+    } 
 }
 processBatch = (o) => {
     let batch = [...o];
@@ -280,7 +281,13 @@ updateColors = (a,b=cursorColor2) => {
     setColors(a,b);
     activeBatch.push(9,a,b);    
 }
+selectColor1 = (e) => {
+    updateColors(parseInt(e.target.value));
 
+}
+selectColor2 = (e) => {
+    updateColors(ui.color1, parseInt(e.target.value) )
+}
 loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
@@ -309,6 +316,7 @@ canvas.addEventListener("mousemove", setCursor);
 canvas.addEventListener("mousedown", drawStart);
 canvas.addEventListener("mouseup", drawEnd);
 document.addEventListener('DOMContentLoaded',function() {
-    document.querySelector('select[name="color1"]').onchange=changeEventHandler;
+    document.querySelector('select[name="color1"]').onchange=selectColor1;
+    document.querySelector('select[name="color2"]').onchange=selectColor2;
 },false);
 init();
