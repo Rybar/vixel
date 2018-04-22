@@ -34,7 +34,6 @@ init = () => {
         FRECT,90,90,140,140,
         CIRCLE, 300,140,9,
         FCIRCLE,WIDTH/2,HEIGHT,10
-
     ];
 
     makeUI();
@@ -42,6 +41,7 @@ init = () => {
 }
 
 makeUI = () => {
+        
     var button = document.createElement("button");
     button.innerHTML = 'random color1';
     var uisection = document.getElementsByTagName("header")[0];
@@ -55,6 +55,55 @@ makeUI = () => {
     uisection.appendChild(button);
     button.addEventListener ("click", function() {
        activeBatch = [];
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'pset';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = PSET;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'line';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = LINE;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'rect';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = RECT;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'fillRect';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = FRECT;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'circle';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = CIRCLE;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'fillCircle';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = FCIRCLE;
+    });
+
+    button = document.createElement("button");
+    button.innerHTML = 'floodFill';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = FLOOD;
     });
 
     
@@ -77,11 +126,13 @@ setCursor = e => {
 drawStart = e => {
     startX = mouseCursor.x;
     startY = mouseCursor.y;
+    mouseDown = true;
 }
 
 drawEnd = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
+    mouseDown = false;
     
     switch(currentTool){
         case PSET:
@@ -90,6 +141,36 @@ drawEnd = e => {
         case LINE:
             activeBatch.push(currentTool, startX, startY, endX, endY);
             break;
+            case LINETO:
+            lineTo(endX, endY); 
+            break;
+
+        case RECT:
+            activeBatch.push(currentTool,startX, startY, endX, endY);
+            break;
+            
+        case FRECT:
+            activeBatch.push(currentTool,startX, startY, endX, endY);
+            break;
+        
+        case CIRCLE:
+            let leg1 = Math.abs(startX - endX),
+                leg2 = Math.abs(startY - endY),
+                r = Math.hypot(leg1, leg2)|0;
+            activeBatch.push(currentTool, startX, startY, r);
+            break;
+        
+        case FCIRCLE:
+            let fleg1 = Math.abs(startX - endX),
+                fleg2 = Math.abs(startY - endY),
+                fr = Math.hypot(fleg1, fleg2)|0;
+            activeBatch.push(currentTool, startX, startY, fr);
+            break;
+        
+        case FLOOD:
+            activeBatch.push(currentTool, endX, endY);
+            break;
+        default: break;
     }
     
 }
@@ -97,46 +178,52 @@ drawEnd = e => {
 drawActive = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
-    switch(currentTool) { 
-        case PSET:
-            pset(endX, endY);
-            break;
-        case LINE:
-            line(startX, startY, endX, endY);
-            break;
+    if(mouseDown){
 
-        /* case LINETO:
-            lineTo(...batch.splice(0,2)); 
-            break;
+        switch(currentTool) { 
+            case PSET:
+                pset(endX, endY);
+                break;
+            case LINE:
+                line(startX, startY, endX, endY);
+                break;
 
-        case RECT:
-            rect(...batch.splice(0,4));
-            break;
+            case LINETO:
+                lineTo(endX, endY); 
+                break;
+
+            case RECT:
+                rect(startX, startY, endX, endY);
+                break;
+                
+            case FRECT:
+                fillRect(startX, startY, endX, endY);
+                break;
             
-        case FRECT:
-            fillRect(...batch.splice(0,4));
-            break;
-        
-        case CIRCLE:
-            circle(...batch.splice(0,3));
-            break;
-        
-        case FCIRCLE:
-            fillCircle(...batch.splice(0,3));
-            break;
-        
-        case FLOOD:
-            floodFill(...batch.splice(0,2));
-            break;
-        
-        case SETCOLORS:
-            setColors(...batch.splice(0,2));
-            break; */
-        default:
-        setColors(4); 
-        fillRect(0,0,320,180);
-        batch = []; //to prevent infinite loop and bail if malformed
-    }
+            case CIRCLE:
+                let leg1 = Math.abs(startX - endX),
+                    leg2 = Math.abs(startY - endY),
+                    r = Math.hypot(leg1, leg2)|0;
+                circle(startX, startY, r);
+                break;
+            
+            case FCIRCLE:
+                let fleg1 = Math.abs(startX - endX),
+                    fleg2 = Math.abs(startY - endY),
+                    fr = Math.hypot(fleg1, fleg2)|0;
+                fillCircle(startX, startY, fr);
+                break;
+            
+            case FLOOD:
+                floodFill(endX, endY, cursorColor);
+                break;
+            
+            default: //no valid draw command found
+            setColors(4); 
+            fillRect(0,0,320,180);
+            batch = []; //to prevent infinite loop and bail if malformed
+        }
+}
 }
 processBatch = (o) => {
     let batch = [...o];
@@ -178,6 +265,7 @@ processBatch = (o) => {
         case SETCOLORS:
             setColors(...batch.splice(0,2));
             break;
+
         default:
         setColors(4); 
         fillRect(0,0,320,180);
@@ -191,6 +279,7 @@ updateColors = (a,b=cursorColor2) => {
     setColors(a,b);
     activeBatch.push(9,a,b);    
 }
+
 loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
@@ -217,7 +306,7 @@ loop = () =>{
     
     processBatch(activeBatch)
     drawActive();
-    document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
+    //document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
 
     render()
