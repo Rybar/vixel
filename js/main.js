@@ -37,7 +37,6 @@ init = () => {
 
     ];
 
-    //setColors(ui.color1, ui.color2);
     makeUI();
     loop();
 }
@@ -48,7 +47,7 @@ makeUI = () => {
     var uisection = document.getElementsByTagName("header")[0];
     uisection.appendChild(button);
     button.addEventListener ("click", function() {
-        ui.color1=Math.random()*64|0,0;
+        updateColors(Math.random()*64|0);
     });
 
     button = document.createElement("button");
@@ -83,8 +82,7 @@ drawStart = e => {
 drawEnd = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
-    activeBatch.push(SETCOLORS, ui.color1, ui.color2);
-
+    
     switch(currentTool){
         case PSET:
             activeBatch.push(currentTool, endX, endY);
@@ -97,7 +95,6 @@ drawEnd = e => {
 }
 
 drawActive = e => {
-    setColors(ui.color1, ui.color2)
     endX = mouseCursor.x;
     endY = mouseCursor.y;
     switch(currentTool) { 
@@ -188,14 +185,16 @@ processBatch = (o) => {
     }
  }
 }
-
+updateColors = (a,b=cursorColor2) => {
+    ui.color1 = a;
+    ui.color2 = b;
+    setColors(a,b);
+    activeBatch.push(9,a,b);    
+}
 loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    //setColors([0,4]);
-    // pat = dither[8];
-    // fillRect(0,0,320,180);
     
     for(var i = 0; i < 64; i++){
         let x = i%64,
@@ -215,9 +214,10 @@ loop = () =>{
     FLOOD = 8;
     SETCOLORS = 9;*/
     
-    setColors(ui.color1, ui.color2)
+    
     processBatch(activeBatch)
     drawActive();
+    document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
 
     render()
