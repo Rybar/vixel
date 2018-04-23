@@ -7,6 +7,8 @@ init = () => {
     startY = 0;
     endX = 0;
     endY = 0;
+
+    script = document.getElementById('script');
     
     //drawing commands used in the batch script
     PSET = 1;
@@ -45,20 +47,15 @@ init = () => {
         8,174,90,9,2,27,
         8,133,103
         ];
-    document.getElementById('script').contentEditable = true;
+    script.contentEditable = true;
     makeUI();
     loop();
 }
 
 makeUI = () => {
         
-    var button = document.createElement("button");
-    button.innerHTML = 'random color1';
+    var button;
     var uisection = document.getElementsByTagName("header")[0];
-    uisection.appendChild(button);
-    button.addEventListener ("click", function() {
-        updateColors(Math.random()*64|0);
-    });
 
     button = document.createElement("button");
     button.innerHTML = 'clear';
@@ -144,6 +141,9 @@ drawStart = e => {
     startX = mouseCursor.x;
     startY = mouseCursor.y;
     mouseDown = true;
+    if(e.altKey){
+        updateColors(pget(mouseCursor.x,mouseCursor.y), ui.color2);
+    }
 }
 
 drawEnd = e => {
@@ -189,14 +189,13 @@ drawEnd = e => {
             break;
         default: break;
     }
-    document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
+    script.innerHTML = JSON.stringify(activeBatch);
 }
 
 drawActive = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
     if(mouseDown){
-
         switch(currentTool) { 
             case PSET:
                 pset(endX, endY);
@@ -227,7 +226,7 @@ drawActive = e => {
                 break;
             
             case FLOOD:
-                floodFill(endX, endY, cursorColor);
+                //floodFill(endX, endY, cursorColor);
                 break;
             
             default: //no valid draw command found
@@ -285,7 +284,8 @@ processBatch = (o) => {
     }
  }
 }
-parseBatch = (o) => {
+
+parseBatch = (o) => { //stub function, does nothing yet
     let batch = [...o];
     results = [];
     while(batch.length > 0){
@@ -296,7 +296,9 @@ parseBatch = (o) => {
 updateColors = (a,b=cursorColor2) => {
     ui.color1 = a;
     ui.color2 = b;
-    setColors(a,b);
+    cursorColor = a;
+    cursorColor2 = b;
+    //setColors(a,b);
     activeBatch.push(9,a,b);    
 }
 selectColor1 = (e) => {
@@ -310,20 +312,21 @@ loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    //
+    //draw the queue
     processBatch(activeBatch)
 
-    for(var i = 0; i < 64; i++){
-        let x = i%16,
-            y = Math.floor(i/16),
-            rspace = 5,
-            cspace = 3;
-        fillRect(x*rspace,y*rspace,x*rspace+4,y*rspace+4,i,0);
-    }
+    // //color palette bars at top
+    // for(var i = 0; i < 64; i++){
+    //     let x = i%16,
+    //         y = Math.floor(i/16),
+    //         rspace = 5
+    //     fillRect(x*rspace,y*rspace,x*rspace+4,y*rspace+4,i,0);
+    // }
     drawActive();
     //document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
-
+    cursorColor = ui.color1;
+    cursorColor2 = ui.color2;
     render()
     
     

@@ -1,0 +1,14 @@
+- refactor rect and fillrect to allow starting from bottom left  
+- undo/redo
+- image-based color pickers
+- dither pattern picker
+- dither pattern editor
+- erase/draw with color 0  
+- script interaction  
+    -  parse batch into human-readable list
+    -  display list on side bar in organized way with editable fields "LINE | 64 | 64 | 128 | 250"
+    -  delete commands from anywhere in the list
+    -  insert commands anywhere in the list
+        - click at insert point and then start drawing OR  
+        - select a command and punch in numbers yourself  
+        

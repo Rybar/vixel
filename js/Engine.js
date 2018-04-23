@@ -200,6 +200,7 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
     let mask = pat & Math.pow(2, px);
     pcolor = mask ? cursorColor : cursorColor2;
     if(pcolor == 0)return;
+    if(pcolor > 63)pcolor = 0;
     if(x < 0 | x > WIDTH-1) return;
     if(y < 0 | y > HEIGHT-1) return;
 
