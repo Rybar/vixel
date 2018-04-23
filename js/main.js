@@ -1,5 +1,5 @@
 init = () => {
-
+    //vars used during interactive drawing
     mouseCursor = {x:0, y:0};
     mouseDown = false;
     currentTool = 2;
@@ -8,6 +8,7 @@ init = () => {
     endX = 0;
     endY = 0;
     
+    //drawing commands used in the batch script
     PSET = 1;
     LINE = 2;
     LINETO = 3;
@@ -23,19 +24,28 @@ init = () => {
         color1: 22,
         color2: 0
     }
-    activeBatch = [
-        1,19,4, 1,8,8, 1,16,16, 1,32,32, 1,64,64,
-        9, 4, 1,
-        2,128,64,320,180,
-        9,17,0,
-        3,WIDTH/2, HEIGHT/2, 3,310,10, 3,53,53,
-        9,42,0,
-        RECT, 4, 4, 90,90,
-        FRECT,90,90,140,140,
-        CIRCLE, 300,140,9,
-        FCIRCLE,WIDTH/2,HEIGHT,10
-    ];
 
+    //pre-draw a red cube. This was drawn in-tool and pasted here,
+    //I added new-lines so you can see each command. 
+    activeBatch = [
+        1,159,70,
+        9,3,27,
+        9,4,27,
+        1,82,49,
+        2,82,49,159,70,
+        2,159,70,163,155,
+        2,159,70,205,36,
+        2,163,156,201,107,
+        2,205,37,201,106,
+        2,81,49,93,134,
+        2,93,134,162,156,
+        2,81,48,146,23,
+        2,146,23,204,35,
+        8,153,45,9,3,27,
+        8,174,90,9,2,27,
+        8,133,103
+        ];
+    document.getElementById('script').contentEditable = true;
     makeUI();
     loop();
 }
@@ -275,6 +285,14 @@ processBatch = (o) => {
     }
  }
 }
+parseBatch = (o) => {
+    let batch = [...o];
+    results = [];
+    while(batch.length > 0){
+        
+    }
+
+}
 updateColors = (a,b=cursorColor2) => {
     ui.color1 = a;
     ui.color2 = b;
@@ -292,17 +310,16 @@ loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    //color bar
-    // for(var i = 0; i < 64; i++){
-    //     let x = i%64,
-    //         y = i%64,
-    //         rspace = 5,
-    //         cspace = 3;
-    //     pat = dither[0];
-    //     fillRect(x*rspace,0,x*rspace+4,4,i,0);
-    // }
-
+    //
     processBatch(activeBatch)
+
+    for(var i = 0; i < 64; i++){
+        let x = i%16,
+            y = Math.floor(i/16),
+            rspace = 5,
+            cspace = 3;
+        fillRect(x*rspace,y*rspace,x*rspace+4,y*rspace+4,i,0);
+    }
     drawActive();
     //document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)

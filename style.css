@@ -53,10 +53,11 @@ canvas {
 }
 
 .script {
-	background-color: red;
 	max-width: 100%;
-	max-height: 100%;
-	overflow: scroll
+	min-height: 100%;
+	overflow-y: auto;
+	overflow-x: hidden;
+	overflow-wrap: break-word;
 	grid-area: nav;
 	max-width: 100%;
 }
