@@ -7,7 +7,11 @@ init = () => {
     startY = 0;
     endX = 0;
     endY = 0;
-
+    palette1 = document.getElementById("color1");
+    palette2 = document.getElementById("color2");
+    palette1.onclick = selectColor1;
+    palette2.onclick = selectColor2;
+    
     script = document.getElementById('script');
     
     //drawing commands used in the batch script
@@ -24,9 +28,8 @@ init = () => {
     SETDITHER = 11;
     ui = {
         color1: 22,
-        color2: 0
+        color2: 22
     }
-
     //pre-draw a red cube. This was drawn in-tool and pasted here,
     //I added new-lines so you can see each command. 
     activeBatch = [
@@ -49,6 +52,8 @@ init = () => {
         ];
     script.contentEditable = true;
     makeUI();
+    updateColors(22,22);
+    pat = dither[8];
     loop();
 }
 
@@ -189,7 +194,7 @@ drawEnd = e => {
             break;
         default: break;
     }
-    script.innerHTML = JSON.stringify(activeBatch);
+    //script.innerHTML = JSON.stringify(activeBatch);
 }
 
 drawActive = e => {
@@ -302,12 +307,23 @@ updateColors = (a,b=cursorColor2) => {
     activeBatch.push(9,a,b);    
 }
 selectColor1 = (e) => {
-    updateColors(parseInt(e.target.value));
-
+    let pos = getMousePos(palette1, e),
+        row = Math.floor(pos.y/15),
+        col = Math.floor(pos.x/15),
+        color = row * 16 + col;
+        //alert(`color index: ${color}`)
+    updateColors(color);
+    //alert(`row: ${row} col: ${col}  index: ${color}`)
 }
 selectColor2 = (e) => {
-    updateColors(ui.color1, parseInt(e.target.value) )
+    let pos = getMousePos(palette2, e),
+        row = Math.floor(pos.y/15),
+        col = Math.floor(pos.x/15),
+        color = row * 16 + col;
+        //alert(`color index: ${color}`)
+    updateColors(ui.color1, color);
 }
+
 loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
@@ -335,8 +351,9 @@ loop = () =>{
 canvas.addEventListener("mousemove", setCursor);
 canvas.addEventListener("mousedown", drawStart);
 canvas.addEventListener("mouseup", drawEnd);
-document.addEventListener('DOMContentLoaded',function() {
-    document.querySelector('select[name="color1"]').onchange=selectColor1;
-    document.querySelector('select[name="color2"]').onchange=selectColor2;
-},false);
+
+// document.addEventListener('DOMContentLoaded',function() {
+//     document.querySelector('select[name="color1"]').onchange=selectColor1;
+//     document.querySelector('select[name="color2"]').onchange=selectColor2;
+// },false);
 init();

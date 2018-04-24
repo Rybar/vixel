@@ -6,11 +6,11 @@ body {
     "header header header"
     "nav section aside"
     "footer footer footer";
-	grid-template-rows: 40px 1fr 40px;
+	grid-template-rows: 80px 1fr 40px;
 	grid-template-columns: 20% 1fr;
 	/* grid-gap: 5px; */
   height: 100vh;
-  /* margin: 10px;   */
+  margin: 0 auto;   
 }
 
 header {
