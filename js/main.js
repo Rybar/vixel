@@ -33,6 +33,7 @@ init = () => {
     //pre-draw a red cube. This was drawn in-tool and pasted here,
     //I added new-lines so you can see each command. 
     activeBatch = [
+        9,22,22,
         1,159,70,
         9,3,27,
         9,4,27,
@@ -54,6 +55,7 @@ init = () => {
     makeUI();
     updateColors(22,22);
     pat = dither[8];
+    drawBatch();
     loop();
 }
 
@@ -195,11 +197,13 @@ drawEnd = e => {
         default: break;
     }
     //script.innerHTML = JSON.stringify(activeBatch);
+    drawBatch();
 }
 
 drawActive = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
+    renderTarget = SCREEN;
     if(mouseDown){
         switch(currentTool) { 
             case PSET:
@@ -231,7 +235,7 @@ drawActive = e => {
                 break;
             
             case FLOOD:
-                //floodFill(endX, endY, cursorColor);
+                floodFill(endX, endY, cursorColor);
                 break;
             
             default: //no valid draw command found
@@ -289,7 +293,13 @@ processBatch = (o) => {
     }
  }
 }
-
+drawBatch = (o) => {
+    renderTarget = BUFFER;
+    clear(0);
+    processBatch(activeBatch);
+    updateColors(ui.color1, ui.color2);
+    renderTarget = SCREEN;
+}
 parseBatch = (o) => { //stub function, does nothing yet
     let batch = [...o];
     results = [];
@@ -311,16 +321,13 @@ selectColor1 = (e) => {
         row = Math.floor(pos.y/15),
         col = Math.floor(pos.x/15),
         color = row * 16 + col;
-        //alert(`color index: ${color}`)
     updateColors(color);
-    //alert(`row: ${row} col: ${col}  index: ${color}`)
 }
 selectColor2 = (e) => {
     let pos = getMousePos(palette2, e),
         row = Math.floor(pos.y/15),
         col = Math.floor(pos.x/15),
         color = row * 16 + col;
-        //alert(`color index: ${color}`)
     updateColors(ui.color1, color);
 }
 
@@ -328,18 +335,10 @@ loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    //draw the queue
-    processBatch(activeBatch)
-
-    // //color palette bars at top
-    // for(var i = 0; i < 64; i++){
-    //     let x = i%16,
-    //         y = Math.floor(i/16),
-    //         rspace = 5
-    //     fillRect(x*rspace,y*rspace,x*rspace+4,y*rspace+4,i,0);
-    // }
+    //draw the buffer
+    renderSource = BUFFER;
+    spr(0,0,320,180,0,0);
     drawActive();
-    //document.getElementById('script').innerHTML = JSON.stringify(activeBatch);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
     cursorColor = ui.color1;
     cursorColor2 = ui.color2;
@@ -352,8 +351,4 @@ canvas.addEventListener("mousemove", setCursor);
 canvas.addEventListener("mousedown", drawStart);
 canvas.addEventListener("mouseup", drawEnd);
 
-// document.addEventListener('DOMContentLoaded',function() {
-//     document.querySelector('select[name="color1"]').onchange=selectColor1;
-//     document.querySelector('select[name="color2"]').onchange=selectColor2;
-// },false);
 init();

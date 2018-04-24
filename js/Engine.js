@@ -212,7 +212,11 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
   }
 
   function fillPixel (pixel, prevC, newC){
+    //pixel = y * WIDTH + x
+    let x = pixel%WIDTH
+    let y = Math.floor(pixel/WIDTH)
     ram[pixel] = newC;
+    //pset(x,y);
     let up = pixel + WIDTH, down = pixel - WIDTH, left = pixel -1, right = pixel+1
     if(ram[up] == prevC)floodStack.push(up)
     if(ram[down] == prevC)floodStack.push(down)
@@ -222,6 +226,7 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
 
   function floodFill(x=cursorX,y=cursorY, newC=cursorColor, page=renderTarget){
     let prevC = pget(x,y,page);
+    if(prevC == newC) return;
     floodStack = [];
     fillPixel(page + x + y * WIDTH, prevC, newC);
       while(floodStack.length > 0){
