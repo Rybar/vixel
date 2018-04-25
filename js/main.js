@@ -34,22 +34,8 @@ init = () => {
     //I added new-lines so you can see each command. 
     activeBatch = [
         9,22,22,
-        1,159,70,
-        9,3,27,
-        9,4,27,
-        1,82,49,
-        2,82,49,159,70,
-        2,159,70,163,155,
-        2,159,70,205,36,
-        2,163,156,201,107,
-        2,205,37,201,106,
-        2,81,49,93,134,
-        2,93,134,162,156,
-        2,81,48,146,23,
-        2,146,23,204,35,
-        8,153,45,9,3,27,
-        8,174,90,9,2,27,
-        8,133,103
+        1,64,64
+    
         ];
     script.contentEditable = true;
     makeUI();
@@ -69,6 +55,7 @@ makeUI = () => {
     uisection.appendChild(button);
     button.addEventListener ("click", function() {
        activeBatch = [];
+       drawBatch(activeBatch);
     });
 
     button = document.createElement("button");
@@ -157,7 +144,6 @@ drawEnd = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
     mouseDown = false;
-    
     switch(currentTool){
         case PSET:
             activeBatch.push(currentTool, endX, endY);
@@ -293,20 +279,65 @@ processBatch = (o) => {
     }
  }
 }
+
 drawBatch = (o) => {
     renderTarget = BUFFER;
     clear(0);
     processBatch(activeBatch);
-    updateColors(ui.color1, ui.color2);
+    parseBatch(activeBatch);
+    //updateColors(ui.color1, ui.color2);
+    
     renderTarget = SCREEN;
 }
 parseBatch = (o) => { //stub function, does nothing yet
     let batch = [...o];
-    results = [];
+    //results = [];
+    let res = "";
     while(batch.length > 0){
+        switch(batch.shift()){
+            case PSET:
+                res+=`pset: ${batch[0]}, ${batch[1]} \n` 
+                //activeBatch.push(currentTool, endX, endY);
+                break;
+            case LINE:
+                res+=`line: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n` 
+                //activeBatch.push(currentTool, startX, startY, endX, endY);
+                break;
+            case LINETO:
+                res+=`lineTo: ${batch[0]}, ${batch[1]}\n`
+                //activeBatch.push(currentTool, endX, endY);
+                break;
+    
+            case RECT:
+                res+=`rect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
+                //activeBatch.push(currentTool,startX, startY, endX, endY);
+                break;
+                
+            case FRECT:
+                res+=`fillRect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
+                //activeBatch.push(currentTool,startX, startY, endX, endY);
+                break;
+            
+            case CIRCLE:
+                res+=`circle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
+                break;
+            
+            case FCIRCLE:
+                res+=`fillCircle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
+                break;
+            
+            case FLOOD:
+                res+=`floodFill: ${batch[0]}, ${batch[1]}\n`
+                break;
+
+            case SETCOLORS:
+                res+=`setColors: ${batch[0]}, ${batch[1]}\n`
+                break;
+            default: break;
+        }
         
     }
-
+    script.innerHTML = res;
 }
 updateColors = (a,b=cursorColor2) => {
     ui.color1 = a;

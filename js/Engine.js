@@ -413,7 +413,7 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
     y2 = y2|0;
     color = color|0;
 
-    var i = Math.abs(y2 - y1);
+    var i = y2 - y1;
     line(x1, y1, x2, y1, color);
 
     if(i > 0){
@@ -421,7 +421,11 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
         line(x1, y1+i, x2, y1+i, color);
       }
     }
-
+    else if(i < 0) {
+      while(++i){
+        line(x1, y1+i, x2, y1+i, color);
+      }
+    }
     line(x1,y2, x2, y2, color);
   }
 
