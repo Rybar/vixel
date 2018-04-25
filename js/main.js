@@ -31,9 +31,6 @@ init = () => {
         color2: 22
     }
     activeBatch = [
-        9,22,22,
-        9,1,4,
-        1,64,64
         ];
     
     script.contentEditable = true;
