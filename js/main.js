@@ -30,16 +30,14 @@ init = () => {
         color1: 22,
         color2: 22
     }
-    //pre-draw a red cube. This was drawn in-tool and pasted here,
-    //I added new-lines so you can see each command. 
     activeBatch = [
         9,22,22,
+        9,1,4,
         1,64,64
-    
         ];
+    
     script.contentEditable = true;
     makeUI();
-    updateColors(22,22);
     pat = dither[8];
     drawBatch();
     loop();
@@ -296,42 +294,47 @@ parseBatch = (o) => { //stub function, does nothing yet
     while(batch.length > 0){
         switch(batch.shift()){
             case PSET:
-                res+=`pset: ${batch[0]}, ${batch[1]} \n` 
-                //activeBatch.push(currentTool, endX, endY);
+                res+=`pset: ${batch[0]}, ${batch[1]} \n`
+                batch.splice(0,2); 
                 break;
             case LINE:
-                res+=`line: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n` 
-                //activeBatch.push(currentTool, startX, startY, endX, endY);
+                res+=`line: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
+                batch.splice(0,4); 
                 break;
             case LINETO:
                 res+=`lineTo: ${batch[0]}, ${batch[1]}\n`
-                //activeBatch.push(currentTool, endX, endY);
+                batch.splice(0,2); 
                 break;
     
             case RECT:
                 res+=`rect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
-                //activeBatch.push(currentTool,startX, startY, endX, endY);
+                batch.splice(0,4); 
                 break;
                 
             case FRECT:
                 res+=`fillRect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
-                //activeBatch.push(currentTool,startX, startY, endX, endY);
+                batch.splice(0,4); 
+                
                 break;
             
             case CIRCLE:
                 res+=`circle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
+                batch.splice(0,3); 
                 break;
             
             case FCIRCLE:
                 res+=`fillCircle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
+                batch.splice(0,3); 
                 break;
             
             case FLOOD:
                 res+=`floodFill: ${batch[0]}, ${batch[1]}\n`
+                batch.splice(0,2); 
                 break;
 
             case SETCOLORS:
                 res+=`setColors: ${batch[0]}, ${batch[1]}\n`
+                batch.splice(0,2); 
                 break;
             default: break;
         }
