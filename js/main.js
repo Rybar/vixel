@@ -11,6 +11,7 @@ init = () => {
     palette2 = document.getElementById("color2");
     palette1.onclick = selectColor1;
     palette2.onclick = selectColor2;
+    parsed = [];
     
     script = document.getElementById('script');
     
@@ -31,6 +32,8 @@ init = () => {
         color2: 22
     }
     activeBatch = [
+        [9, 22, 22],
+        [1, 64, 64],
         ];
     
     script.contentEditable = true;
@@ -141,39 +144,39 @@ drawEnd = e => {
     mouseDown = false;
     switch(currentTool){
         case PSET:
-            activeBatch.push(currentTool, endX, endY);
+            activeBatch.push([currentTool, endX, endY]);
             break;
         case LINE:
-            activeBatch.push(currentTool, startX, startY, endX, endY);
+            activeBatch.push([currentTool, startX, startY, endX, endY]);
             break;
         case LINETO:
-            activeBatch.push(currentTool, endX, endY);
+            activeBatch.push([currentTool, endX, endY]);
             break;
 
         case RECT:
-            activeBatch.push(currentTool,startX, startY, endX, endY);
+            activeBatch.push([currentTool,startX, startY, endX, endY]);
             break;
             
         case FRECT:
-            activeBatch.push(currentTool,startX, startY, endX, endY);
+            activeBatch.push([currentTool,startX, startY, endX, endY]);
             break;
         
         case CIRCLE:
             let leg1 = Math.abs(startX - endX),
                 leg2 = Math.abs(startY - endY),
                 r = Math.hypot(leg1, leg2)|0;
-            activeBatch.push(currentTool, startX, startY, r);
+            activeBatch.push([currentTool, startX, startY, r]);
             break;
         
         case FCIRCLE:
             let fleg1 = Math.abs(startX - endX),
                 fleg2 = Math.abs(startY - endY),
                 fr = Math.hypot(fleg1, fleg2)|0;
-            activeBatch.push(currentTool, startX, startY, fr);
+            activeBatch.push([currentTool, startX, startY, fr]);
             break;
         
         case FLOOD:
-            activeBatch.push(currentTool, endX, endY);
+            activeBatch.push([currentTool, endX, endY]);
             break;
         default: break;
     }
@@ -227,52 +230,10 @@ drawActive = e => {
     } 
 }
 processBatch = (o) => {
-    let batch = [...o];
-    let step = [];
     //each tuple in a batch consists of [drawcommand, ...parameters]
- while( batch.length > 0) {
-    switch(batch.shift()) {  //pop the first one,
-        case PSET:
-            pset(...batch.splice(0,2));
-            break;
-        case LINE:
-            line(...batch.splice(0,4));
-            break;
-
-        case LINETO:
-            lineTo(...batch.splice(0,2)); 
-            break;
-
-        case RECT:
-            rect(...batch.splice(0,4));
-            break;
-            
-        case FRECT:
-            fillRect(...batch.splice(0,4));
-            break;
-        
-        case CIRCLE:
-            circle(...batch.splice(0,3));
-            break;
-        
-        case FCIRCLE:
-            fillCircle(...batch.splice(0,3));
-            break;
-        
-        case FLOOD:
-            floodFill(...batch.splice(0,2));
-            break;
-        
-        case SETCOLORS:
-            setColors(...batch.splice(0,2));
-            break;
-
-        default:
-        setColors(4); 
-        fillRect(0,0,320,180);
-        batch = []; //to prevent infinite loop and bail if malformed
-    }
- }
+    //each element in an array is a nested array with command tuple ^
+ o.forEach(drawCommand);
+    
 }
 
 drawBatch = (o) => {
@@ -280,72 +241,112 @@ drawBatch = (o) => {
     clear(0);
     processBatch(activeBatch);
     parseBatch(activeBatch);
-    //updateColors(ui.color1, ui.color2);
-    
+    script.innerHTML = scriptDisplay(parsed);
+    //updateColors(ui.color1, ui.color2);    
     renderTarget = SCREEN;
 }
-parseBatch = (o) => { //stub function, does nothing yet
-    let batch = [...o];
-    //results = [];
-    let res = "";
-    while(batch.length > 0){
-        switch(batch.shift()){
+scriptDisplay = (o) =>{
+    let res = ""
+    o.forEach(function(e,i,a){
+        res += e;
+    })
+    return res;
+}
+parseBatch = (o) => { 
+    parsed = [];
+    o.forEach(parseCommand);
+}
+drawCommand = (elem, i, arr) =>{
+    switch(elem[0]) { 
+        case PSET:
+            pset(elem[1], elem[2]);
+
+            break;
+        case LINE:
+            line(elem[1], elem[2], elem[3], elem[4]);
+            break;
+
+        case LINETO:
+            lineTo(elem[1], elem[2]); 
+            break;
+
+        case RECT:
+            rect(elem[1], elem[2], elem[3], elem[4]);
+            break;
+            
+        case FRECT:
+            fillRect(elem[1], elem[2], elem[3], elem[4]);
+            break;
+        
+        case CIRCLE:
+            circle(elem[1], elem[2], elem[3]);
+            break;
+        
+        case FCIRCLE:
+            fillCircle(elem[1], elem[2], elem[3]);
+            break;
+        
+        case FLOOD:
+            floodFill(elem[1], elem[2]);
+            break;
+        
+        case SETCOLORS:
+            setColors(elem[1], elem[2]);
+            break;
+
+        default:
+        setColors(4); 
+        fillRect(0,0,320,180);
+        batch = []; //to prevent infinite loop and bail if malformed
+    }
+}
+parseCommand = (elem, i, arr) => {
+    res = "";
+    switch(elem[0]){
             case PSET:
-                res+=`pset: ${batch[0]}, ${batch[1]} \n`
-                batch.splice(0,2); 
+                res+=`pset: ${elem[1]}, ${elem[2]} \n`
                 break;
             case LINE:
-                res+=`line: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
-                batch.splice(0,4); 
+                res+=`line: ${elem[1]}, ${elem[2]}, ${elem[3]}, ${elem[4]}\n` 
                 break;
             case LINETO:
-                res+=`lineTo: ${batch[0]}, ${batch[1]}\n`
-                batch.splice(0,2); 
+                res+=`lineTo: ${elem[1]}, ${elem[2]}\n` 
                 break;
     
             case RECT:
-                res+=`rect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
-                batch.splice(0,4); 
+                res+=`rect: ${elem[1]}, ${elem[2]}, ${elem[3]}, ${elem[4]}\n` 
                 break;
                 
             case FRECT:
-                res+=`fillRect: ${batch[0]}, ${batch[1]}, ${batch[2]}, ${batch[3]}\n`
-                batch.splice(0,4); 
-                
+                res+=`fillRect: ${elem[1]}, ${elem[2]}, ${elem[3]}, ${elem[4]}\n`      
                 break;
             
             case CIRCLE:
-                res+=`circle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
-                batch.splice(0,3); 
+                res+=`circle: ${elem[1]}, ${elem[2]}, ${elem[3]}\n` 
                 break;
             
             case FCIRCLE:
-                res+=`fillCircle: ${batch[0]}, ${batch[1]}, ${batch[2]}\n`
-                batch.splice(0,3); 
+                res+=`fillCircle: ${elem[1]}, ${elem[2]}, ${elem[3]}\n` 
                 break;
             
             case FLOOD:
-                res+=`floodFill: ${batch[0]}, ${batch[1]}\n`
-                batch.splice(0,2); 
+                res+=`floodFill: ${elem[1]}, ${elem[2]}\n` 
                 break;
 
             case SETCOLORS:
-                res+=`setColors: ${batch[0]}, ${batch[1]}\n`
-                batch.splice(0,2); 
+                res+=`setColors: ${elem[1]}, ${elem[2]}\n`
                 break;
             default: break;
-        }
         
-    }
-    script.innerHTML = res;
+    } //end switch
+    parsed.push(res);
 }
 updateColors = (a,b=cursorColor2) => {
     ui.color1 = a;
     ui.color2 = b;
     cursorColor = a;
     cursorColor2 = b;
-    //setColors(a,b);
-    activeBatch.push(9,a,b);    
+    activeBatch.push([9,a,b]);    
 }
 selectColor1 = (e) => {
     let pos = getMousePos(palette1, e),
