@@ -14,6 +14,7 @@ init = () => {
     parsed = [];
     
     script = document.getElementById('script');
+    script.addEventListener('click', deleteItem);
     
     //drawing commands used in the batch script
     PSET = 1;
@@ -36,7 +37,7 @@ init = () => {
         [1, 64, 64],
         ];
     
-    script.contentEditable = true;
+    
     makeUI();
     pat = dither[8];
     drawBatch();
@@ -241,16 +242,36 @@ drawBatch = (o) => {
     clear(0);
     processBatch(activeBatch);
     parseBatch(activeBatch);
-    script.innerHTML = scriptDisplay(parsed);
+    scriptDisplay(parsed);
     //updateColors(ui.color1, ui.color2);    
     renderTarget = SCREEN;
 }
 scriptDisplay = (o) =>{
-    let res = ""
+    script.innerHTML='';
     o.forEach(function(e,i,a){
-        res += e;
+        let item = document.createElement("li");
+        let text = document.createElement("span");
+        let del = document.createElement('button');
+        del.className = 'deleteItem';
+        text.innerHTML = e;
+        del.innerHTML = "X";
+        item.appendChild(text);
+        item.appendChild(del);
+        script.appendChild(item);
     })
-    return res;
+}
+deleteItem = (e) => {
+    var el = e.target;
+    var listItem;
+    var list;
+    if (el.classList.contains("deleteItem")) {
+      listItem = el.parentNode;
+      list = listItem.parentNode;
+      console.log([...list.children].indexOf(listItem))
+      activeBatch.splice( [...list.children].indexOf(listItem) )
+      list.removeChild(listItem);
+      drawBatch(activeBatch);
+    }
 }
 parseBatch = (o) => { 
     parsed = [];

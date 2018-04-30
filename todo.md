@@ -23,6 +23,7 @@
 - script interaction  
     ~~parse batch into human-readable list~~
     ~~display list on side bar in organized way with editable fields "LINE | 64 | 64 | 128 | 250~~
+    -  display script as li, create elements todo-list style for editing -structured like todo-list app. 
     -  delete commands from anywhere in the list
     -  insert commands anywhere in the list
         - click at insert point and then start drawing OR  
