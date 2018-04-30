@@ -268,7 +268,7 @@ deleteItem = (e) => {
       listItem = el.parentNode;
       list = listItem.parentNode;
       console.log([...list.children].indexOf(listItem))
-      activeBatch.splice( [...list.children].indexOf(listItem) )
+      activeBatch.splice( [...list.children].indexOf(listItem), 1 )
       list.removeChild(listItem);
       drawBatch(activeBatch);
     }
