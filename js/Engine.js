@@ -211,12 +211,13 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
     return ram[page + x + y * WIDTH];
   }
 
-  function fillPixel (pixel, prevC, newC){
+  function fillPixel (pixel, prevC){
     //pixel = y * WIDTH + x
     let x = pixel%WIDTH
     let y = Math.floor(pixel/WIDTH)
-    ram[pixel] = newC;
-    //pset(x,y);
+    //ram[pixel] = newC; //this works, but want to fill with dither
+    
+    pset(x,y); //honors dither pattern
     let up = pixel + WIDTH, down = pixel - WIDTH, left = pixel -1, right = pixel+1
     if(ram[up] == prevC)floodStack.push(up)
     if(ram[down] == prevC)floodStack.push(down)
@@ -224,14 +225,14 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
     if(ram[right] == prevC)floodStack.push(right)
   }
 
-  function floodFill(x=cursorX,y=cursorY, newC=cursorColor, page=renderTarget){
+  function floodFill(x=cursorX,y=cursorY, page=renderTarget){
     let prevC = pget(x,y,page);
-    if(prevC == newC) return;
+    if(prevC == cursorColor || prevC == cursorColor2) return;
     floodStack = [];
-    fillPixel(page + x + y * WIDTH, prevC, newC);
+    fillPixel(page + x + y * WIDTH, prevC);
       while(floodStack.length > 0){
         let fill = floodStack.pop();
-        fillPixel(fill, prevC, newC);
+        fillPixel(fill, prevC);
       }
   }
 

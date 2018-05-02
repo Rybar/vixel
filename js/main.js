@@ -219,7 +219,7 @@ drawActive = e => {
                 break;
             
             case FLOOD:
-                floodFill(endX, endY, cursorColor);
+                floodFill(endX, endY);
                 break;
             
             default: //no valid draw command found
