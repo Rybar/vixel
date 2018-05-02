@@ -39,7 +39,6 @@ init = () => {
     
     
     makeUI();
-    pat = dither[8];
     drawBatch();
     loop();
 }
@@ -52,10 +51,7 @@ makeUI = () => {
     button = document.createElement("button");
     button.innerHTML = 'clear';
     uisection.appendChild(button);
-    button.addEventListener ("click", function() {
-       activeBatch = [];
-       drawBatch(activeBatch);
-    });
+    button.addEventListener ("click", resetCanvas);
 
     button = document.createElement("button");
     button.innerHTML = 'pset';
@@ -112,6 +108,9 @@ makeUI = () => {
     button.addEventListener ("click", function() {
        currentTool = FLOOD;
     });
+
+    ditherSelect = document.getElementById('dither').onchange = setDither;
+    //ditherSelect.addEventListener
 
     
 }
@@ -224,7 +223,7 @@ drawActive = e => {
                 break;
             
             default: //no valid draw command found
-            setColors(4); 
+            setColors(4,4); 
             fillRect(0,0,320,180);
             batch = []; //to prevent infinite loop and bail if malformed
         }
@@ -314,6 +313,10 @@ drawCommand = (elem, i, arr) =>{
         case SETCOLORS:
             setColors(elem[1], elem[2]);
             break;
+        
+        case SETDITHER:
+            pat = dither[elem[1]];
+            break;
 
         default:
         setColors(4); 
@@ -357,6 +360,9 @@ parseCommand = (elem, i, arr) => {
             case SETCOLORS:
                 res+=`setColors: ${elem[1]}, ${elem[2]}\n`
                 break;
+            case SETDITHER:
+                res+=`setDither: ${elem[1]}`
+                break;
             default: break;
         
     } //end switch
@@ -383,21 +389,28 @@ selectColor2 = (e) => {
         color = row * 16 + col;
     updateColors(ui.color1, color);
 }
+setDither = (e) => {
+    let value = document.getElementById('dither').value;
+    pat = dither[value];
+    activeBatch.push([SETDITHER, value]);
+}
+resetCanvas = (e) => {
+    activeBatch = [];
+    updateColors(22,22);
+    drawBatch(activeBatch);
+ }
 
 loop = () =>{
     requestAnimationFrame(loop)
     renderTarget = SCREEN;
     clear(0);
-    //draw the buffer
     renderSource = BUFFER;
     spr(0,0,320,180,0,0);
     drawActive();
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
     cursorColor = ui.color1;
     cursorColor2 = ui.color2;
-    render()
-    
-    
+    render() 
 }
 
 canvas.addEventListener("mousemove", setCursor);
