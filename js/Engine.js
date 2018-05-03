@@ -198,7 +198,7 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
     y = y|0;
     let px = (y % 4) * 4 + (x% 4);
     let mask = pat & Math.pow(2, px);
-    pcolor = mask ? cursorColor : cursorColor2;
+    let pcolor = mask ? cursorColor : cursorColor2;
     if(pcolor == 0)return;
     if(pcolor > 63)pcolor = 0;
     if(x < 0 | x > WIDTH-1) return;
@@ -215,9 +215,12 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
     //pixel = y * WIDTH + x
     let x = pixel%WIDTH
     let y = Math.floor(pixel/WIDTH)
-    //ram[pixel] = newC; //this works, but want to fill with dither
+    let px = (y % 4) * 4 + (x% 4);
+    let mask = pat & Math.pow(2, px);
+    let pcolor = mask ? cursorColor : cursorColor2;
+    ram[pixel] = pcolor; 
     
-    pset(x,y); //honors dither pattern
+    //pset(x,y); //honors dither pattern
     let up = pixel + WIDTH, down = pixel - WIDTH, left = pixel -1, right = pixel+1
     if(ram[up] == prevC)floodStack.push(up)
     if(ram[down] == prevC)floodStack.push(down)
