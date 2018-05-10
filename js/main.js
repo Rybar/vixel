@@ -5,6 +5,8 @@ init = () => {
     currentTool = 2;
     startX = 0;
     startY = 0;
+    drawCursorX = 0;
+    drawCursorY = 0;
     endX = 0;
     endY = 0;
     palette1 = document.getElementById("color1");
@@ -28,13 +30,15 @@ init = () => {
     SETCOLORS = 9;
     SETPATTERN = 10;
     SETDITHER = 11;
+    ELLIPSE = 12;
+    FELLIPSE = 13;
     ui = {
         color1: 22,
         color2: 22
     }
     activeBatch = [
         [9, 22, 22],
-        [1, 64, 64],
+        [11, 0],
         ];
     
     
@@ -108,6 +112,18 @@ makeUI = () => {
     button.addEventListener ("click", function() {
        currentTool = FLOOD;
     });
+    button = document.createElement("button");
+    button.innerHTML = 'ellipse';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = ELLIPSE;
+    });
+    button = document.createElement("button");
+    button.innerHTML = 'fillEllipse';
+    uisection.appendChild(button);
+    button.addEventListener ("click", function() {
+       currentTool = FELLIPSE;
+    });
 
     ditherSelect = document.getElementById('dither').onchange = setDither;
     //ditherSelect.addEventListener
@@ -132,6 +148,8 @@ setCursor = e => {
 drawStart = e => {
     startX = mouseCursor.x;
     startY = mouseCursor.y;
+    drawCursorX = cursorX;
+    drawCursorY = cursorY;
     mouseDown = true;
     if(e.altKey){
         updateColors(pget(mouseCursor.x,mouseCursor.y), ui.color2);
@@ -142,6 +160,7 @@ drawEnd = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
     mouseDown = false;
+    let offsetX = 0, offsetY = 0;
     switch(currentTool){
         case PSET:
             activeBatch.push([currentTool, endX, endY]);
@@ -178,6 +197,17 @@ drawEnd = e => {
         case FLOOD:
             activeBatch.push([currentTool, endX, endY]);
             break;
+
+        case ELLIPSE:
+            offsetX = Math.abs(startX - endX);
+            offsetY = Math.abs(startY - endY);
+            activeBatch.push([currentTool, startX-offsetX, startY-offsetY, offsetX*2, offsetY*2])
+            break;
+        case FELLIPSE:
+            offsetX = Math.abs(startX - endX);
+            offsetY = Math.abs(startY - endY);
+            activeBatch.push([currentTool, startX-offsetX, startY-offsetY, offsetX*2, offsetY*2])
+            break;
         default: break;
     }
     //script.innerHTML = JSON.stringify(activeBatch);
@@ -187,8 +217,13 @@ drawEnd = e => {
 drawActive = e => {
     endX = mouseCursor.x;
     endY = mouseCursor.y;
+    
     renderTarget = SCREEN;
     if(mouseDown){
+        let offsetX = 0;
+        let offsetY = 0;
+        //cursorX = startX;
+        //cursorY = startY;
         switch(currentTool) { 
             case PSET:
                 pset(endX, endY);
@@ -197,7 +232,7 @@ drawActive = e => {
                 line(startX, startY, endX, endY);
                 break;
             case LINETO:
-                line(cursorX, cursorY, endX, endY);
+                line(drawCursorX, drawCursorY, endX, endY);
                 break;
             case RECT:
                 rect(startX, startY, endX, endY);
@@ -220,6 +255,18 @@ drawActive = e => {
             
             case FLOOD:
                 floodFill(endX, endY);
+                break;
+            
+            case ELLIPSE:
+                offsetX = Math.abs(startX - endX);
+                offsetY = Math.abs(startY - endY);
+                ellipse(startX-offsetX, startY-offsetY, offsetX*2, offsetY*2 );
+                break;
+
+            case FELLIPSE:
+                offsetX = Math.abs(startX - endX);
+                offsetY = Math.abs(startY - endY);
+                fillEllipse(startX-offsetX, startY-offsetY, offsetX*2, offsetY*2 );
                 break;
             
             default: //no valid draw command found
@@ -317,11 +364,21 @@ drawCommand = (elem, i, arr) =>{
         case SETDITHER:
             pat = dither[elem[1]];
             break;
+        
+        case ELLIPSE:
+            ellipse(elem[1], elem[2], elem[3], elem[4]);
+            break;
+
+        case FELLIPSE:
+            fillEllipse(elem[1], elem[2], elem[3], elem[4]);
+            break;
+            
+        
 
         default:
         setColors(4); 
         fillRect(0,0,320,180);
-        batch = []; //to prevent infinite loop and bail if malformed
+        //batch = []; //to prevent infinite loop and bail if malformed
     }
 }
 parseCommand = (elem, i, arr) => {
@@ -363,6 +420,12 @@ parseCommand = (elem, i, arr) => {
             case SETDITHER:
                 res+=`setDither: ${elem[1]}`
                 break;
+            case ELLIPSE:
+                res+=`ellipse: ${elem[1]}, ${elem[2]}, ${elem[3]}, ${elem[4]}\n`
+                break;
+            case FELLIPSE:
+                res+=`fillEllipse: ${elem[1]}, ${elem[2]}, ${elem[3]}, ${elem[4]}\n`
+                break;
             default: break;
         
     } //end switch
@@ -390,7 +453,7 @@ selectColor2 = (e) => {
     updateColors(ui.color1, color);
 }
 setDither = (e) => {
-    let value = document.getElementById('dither').value;
+    let value = parseInt(document.getElementById('dither').value);
     pat = dither[value];
     activeBatch.push([SETDITHER, value]);
 }
@@ -407,6 +470,7 @@ loop = () =>{
     renderSource = BUFFER;
     spr(0,0,320,180,0,0);
     drawActive();
+    //fillEllipse(64,64,128,64,4,4);
     circle(mouseCursor.x,mouseCursor.y,3,27,27)
     cursorColor = ui.color1;
     cursorColor2 = ui.color2;

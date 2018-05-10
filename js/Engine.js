@@ -92,74 +92,74 @@ renderSource =    PAGESIZE, //buffer is ahead one screen's worth of pixels
 //one GOTCHA: colors are stored 0xAABBGGRR, so you'll have to flop the values from your typical hex colors.
 
 colors =
-[
-0xff080606,
-0xff131014,
-0xff25173B,
-0xff2D1773,
-0xff2A20B4,
-0xff233EDF,
-0xff0A6AFA,
-0xff1BA3F9,
-0xff41D5FF,
-0xff40FCFF,
-0xff64F2D6,
-0xff43DB9C,
-0xff35C159,
-0xff2EA014,
-0xff3E7A1A,
-0xff3B5224,
+  [
+  0xff080606,
+  0xff131014,
+  0xff25173B,
+  0xff2D1773,
+  0xff2A20B4,
+  0xff233EDF,
+  0xff0A6AFA,
+  0xff1BA3F9,
+  0xff41D5FF,
+  0xff40FCFF,
+  0xff64F2D6,
+  0xff43DB9C,
+  0xff35C159,
+  0xff2EA014,
+  0xff3E7A1A,
+  0xff3B5224,
 
-0xff202012,
-0xff643414,
-0xffC45C28,
-0xffDE9F24,
-0xffC7D620,
-0xffDBFCA6,
-0xffFFFFFF,
-0xffC0F3FE,
-0xffB8D6FA,
-0xff97A0F5,
-0xff736AE8,
-0xff9B4ABC,
-0xff803A79,
-0xff533340,
-0xff342224,
-0xff1A1C22,
+  0xff202012,
+  0xff643414,
+  0xffC45C28,
+  0xffDE9F24,
+  0xffC7D620,
+  0xffDBFCA6,
+  0xffFFFFFF,
+  0xffC0F3FE,
+  0xffB8D6FA,
+  0xff97A0F5,
+  0xff736AE8,
+  0xff9B4ABC,
+  0xff803A79,
+  0xff533340,
+  0xff342224,
+  0xff1A1C22,
 
-0xff282b32,
-0xff3b4171,
-0xff4775bb,
-0xff63a4db,
-0xff9cd2f4,
-0xffeae0da,
-0xffd1b9b3,
-0xffaf938b,
-0xff8d756d,
-0xff62544a,
-0xff413933,
-0xff332442,
-0xff38315b,
-0xff52528e,
-0xff6a75ba,
-0xffa3b5e9,
+  0xff282b32,
+  0xff3b4171,
+  0xff4775bb,
+  0xff63a4db,
+  0xff9cd2f4,
+  0xffeae0da,
+  0xffd1b9b3,
+  0xffaf938b,
+  0xff8d756d,
+  0xff62544a,
+  0xff413933,
+  0xff332442,
+  0xff38315b,
+  0xff52528e,
+  0xff6a75ba,
+  0xffa3b5e9,
 
-0xffffe6e3,
-0xfffbbfb9,
-0xffe49b84,
-0xffbe8d58,
-0xff857d47,
-0xff4e6723,
-0xff648432,
-0xff8daf5d,
-0xffbadc92,
-0xffe2f7cd,
-0xffaad2e4,
-0xff8bb0c7,
-0xff6286a0,
-0xff556779,
-0xff444e5a,
-0xff343942,]
+  0xffffe6e3,
+  0xfffbbfb9,
+  0xffe49b84,
+  0xffbe8d58,
+  0xff857d47,
+  0xff4e6723,
+  0xff648432,
+  0xff8daf5d,
+  0xffbadc92,
+  0xffe2f7cd,
+  0xffaad2e4,
+  0xff8bb0c7,
+  0xff6286a0,
+  0xff556779,
+  0xff444e5a,
+  0xff343942,]
 
 //active palette index. maps to indices in colors[]. can alter this whenever for palette effects.
 pal =            [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,
@@ -183,9 +183,11 @@ ram =             new Uint8Array(WIDTH * HEIGHT * PAGES);
   function inView(x,y, viewpad = 64){
     return(x >= 0-viewpad && x <= WIDTH+viewpad && y >=0-viewpad && y <= HEIGHT+viewpad);
   }
+
   function clear(color = 0, page=renderTarget){
     ram.fill(color, page, page + PAGESIZE);
   }
+
   function setColors(color1 = cursorColor, color2 = cursorColor2){
     cursorColor = color1;
     cursorColor2 = color2;
@@ -315,6 +317,8 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
     cursorColor = color;
     xm = xm|0;
     ym = ym|0;
+    //cursorX = ym;
+    //cursorY = ym;
     r = r|0;
     color = color|0;
     var x = -r, y = 0, err = 2 - 2 * r;
@@ -379,6 +383,42 @@ function lineTo(x,y, color=cursorColor, color2 = cursorColor2){
          pset(x0, y0); /*  II. Quadrant */
          pset(x0, y1); /* III. Quadrant */
          pset(x1, y1); /*  IV. Quadrant */
+         e2 = 2*err;
+         if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */
+         if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; } /* x step */
+     } while (x0 <= x1);
+
+     while (y0-y1 < b) {  /* too early stop of flat ellipses a=1 */
+         pset(x0-1, y0); /* -> finish tip of ellipse */
+         pset(x1+1, y0++);
+         pset(x0-1, y1);
+         pset(x1+1, y1--);
+     }
+  }
+
+  function fillEllipse(x0=cursorX, y0=cursorY, width, height, color=cursorColor, color2 = cursorColor2){
+    cursorColor2 = color2;
+    cursorColor = color;
+    x0 = x0|0;
+    let x1 = x0+width|0;
+    y0 = y0|0;
+    let y1 = y0+height|0;
+     let a = Math.abs(x1-x0), b = Math.abs(y1-y0), b1 = b&1; /* values of diameter */
+     let dx = 4*(1-a)*b*b, dy = 4*(b1+1)*a*a; /* error increment */
+     let err = dx+dy+b1*a*a, e2; /* error of 1.step */
+
+     if (x0 > x1) { x0 = x1; x1 += a; } /* if called with swapped points */
+     if (y0 > y1) y0 = y1; /* .. exchange them */
+     y0 += (b+1)/2; y1 = y0-b1;   /* starting pixel */
+     a *= 8*a; b1 = 8*b*b;
+
+     do {
+         //pset(x1, y0); /*   I. Quadrant */
+         //pset(x0, y0); /*  II. Quadrant */
+         //pset(x0, y1); /* III. Quadrant */
+         //pset(x1, y1); /*  IV. Quadrant */
+         line(x1, y0, x0, y0);
+         line(x0, y1, x1, y1);
          e2 = 2*err;
          if (e2 <= dy) { y0++; y1--; err += dy += a; }  /* y step */
          if (e2 >= dx || 2*err > dy) { x0++; x1--; err += dx += b1; } /* x step */
